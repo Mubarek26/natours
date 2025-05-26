@@ -1,0 +1,18 @@
+# Node.js-related
+node_modules/
+.env
+dist/
+build/
+
+# macOS junk
+.DS_Store
+
+# Logs
+*.log
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# OS and system files
+Thumbs.db
