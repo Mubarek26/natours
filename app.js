@@ -19,6 +19,8 @@ async function connectDB() {
 connectDB();
 
 const app = express();
+// Ensure query strings like duration[gte]=5 are parsed as nested objects using qs
+app.set("query parser", "extended");
 
 app.use(express.json());
 app.use(morgan('dev')); // Logging middleware
