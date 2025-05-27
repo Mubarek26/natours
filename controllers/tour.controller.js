@@ -2,18 +2,33 @@ import Tour from '../models/tour.model.js';
 
 export const getAllTours = async (req, res) => {
   try {
-    // 1. Filterign
-    const queryObj = {...req.query};
-    const excludeFields = ['sort', 'limit', 'page', "fields"];
-    excludeFields.forEach(el => delete queryObj[el]);
+    // 1b. Filterign
+    const queryObj = { ...req.query };
+    const excludeFields = ['sort', 'limit', 'page', 'fields'];
+    excludeFields.forEach((el) => delete queryObj[el]);
 
-    // 2. Advanced filtering
+    // 1a. Advanced filtering
     let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-    const query = Tour.find(JSON.parse(queryStr));
+    let query = Tour.find(JSON.parse(queryStr));
+    // 2. Sorting
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
+
+    // 3. Field limiting
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      query = query.select('-__v');
+    }
+
     const tours = await query;
-
     res.status(200).json({
       status: 'success',
       results: tours.length,
@@ -86,14 +101,12 @@ export const updateTour = async (req, res) => {
 
 export const deleteTour = async (req, res) => {
   try {
-    
     await Tour.findByIdAndDelete(req.params.id);
     res.status(204).json({
       status: 'success',
       data: null,
     });
   } catch (err) {
-    
     res.status(500).json({
       status: 'fail',
       message: err,
