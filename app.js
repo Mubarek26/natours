@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 dotenv.config();
 
+
 async function connectDB() {
   try {
     await mongoose.connect(process.env.DATABASE_LOCAL);
@@ -18,12 +19,11 @@ async function connectDB() {
 
 connectDB();
 
+
 const app = express();
-// Ensure query strings like duration[gte]=5 are parsed as nested objects using qs
-app.set("query parser", "extended");
 
 app.use(express.json());
-app.use(morgan('dev')); // Logging middleware
+// app.use(morgan('dev')); // Logging middleware
 const PORT = process.env.PORT;
 
 app.use('/api/v1/tours', tourRouter);

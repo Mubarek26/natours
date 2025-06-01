@@ -1,6 +1,11 @@
 import express from 'express';
 import * as tourController from '../controllers/tour.controller.js';
+import * as aliasMiddleware from '../middlewares/alias.middleware.js';
 const router = express.Router();
+router.route('/top-5-tours').get(aliasMiddleware.aliasTopTours, tourController.getAllTours);
+
+router.route("/tour-stats").get(tourController.getTourStats);
+router.route("/monthly-plan/:id").get(tourController.getMonthlyPlan);
 
 router
   .route('/')
