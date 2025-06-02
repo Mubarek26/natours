@@ -17,5 +17,8 @@
     "nodemon": "^3.1.10",
     "qs": "^6.14.0",
     "slugify": "^1.6.6"
+  },
+  "devDependencies": {
+    "ndb": "^1.1.5"
   }
 }

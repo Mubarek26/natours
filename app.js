@@ -2,10 +2,12 @@ import express from 'express';
 import mongoose from 'mongoose';
 import userRouter from './routes/user.routes.js';
 import tourRouter from './routes/tour.routes.js';
+
+import { AppError } from './utils/appError.js';
+import { globalErrorHandler } from './controllers/error.controller.js';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 dotenv.config();
-
 
 async function connectDB() {
   try {
@@ -19,7 +21,6 @@ async function connectDB() {
 
 connectDB();
 
-
 const app = express();
 
 app.use(express.json());
@@ -28,6 +29,12 @@ const PORT = process.env.PORT;
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+
+app.all('*', (req, res, next) => {
+  next(new AppError(`Can not find ${req.originalUrl} on this server!`, 404));
+});
+
+app.use(globalErrorHandler);
 
 // START SERVER
 app.listen(PORT, () => {
