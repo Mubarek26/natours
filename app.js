@@ -10,13 +10,8 @@ import morgan from 'morgan';
 dotenv.config();
 
 async function connectDB() {
-  try {
-    await mongoose.connect(process.env.DATABASE_LOCAL);
-    console.log('DB connection successful');
-  } catch (err) {
-    console.error('DB connection error:', err);
-    process.exit(1); // Exit if DB connection fails
-  }
+  await mongoose.connect(process.env.DATABASE_LOCAL);
+  console.log('DB connection successful');
 }
 
 connectDB();
@@ -37,8 +32,16 @@ app.all('*', (req, res, next) => {
 app.use(globalErrorHandler);
 
 // START SERVER
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  if(process.env.NODE_ENV === "development") console.log("In development mode");
-  else console.log("In production mode");
+  if (process.env.NODE_ENV === 'development')
+    console.log('In development mode');
+  else console.log('In production mode');
+});
+
+process.on('unhandledRejection', (err) => {
+  server.close(() => {
+    console.log('Shuting down...');
+    process.exit(1);
+  });
 });

@@ -6,7 +6,7 @@ const handleCastErrorDB = (err) => {
 };
 
 const handleDuplicateFieldsDB = (err) => {
- const match = err.errorResponse.errmsg.match(/"([^"]+)"/);
+const match = err.errorResponse.errmsg.match(/"([^"]+)"/);
 const message = `Duplicate field value: ${match?.[1]}. Please use another value!`;
   return new AppError(message, 400);
 };
@@ -33,7 +33,6 @@ const sendErrorProd = (err, res) => {
       status: err.status,
       message: err.message,
     });
-
     // Programming or unknown error
   } else {
     console.error('ERROR 💥', err);
@@ -52,7 +51,7 @@ export const globalErrorHandler = (err, req, res, next) => {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err };
-    if (err.name === 'CastError') error = handleCastErrorDB(error);
+    if (error.name === 'CastError') error = handleCastErrorDB(error);
     if (err.code === 11000) error = handleDuplicateFieldsDB(error);
     if(err.name === 'ValidationError') error = handleValidationErrorDB(error);
     sendErrorProd(error, res);
