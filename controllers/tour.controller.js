@@ -1,12 +1,7 @@
 import Tour from '../models/tour.model.js';
 import { ApiFeatures } from '../utils/apiFeatures.js';
 import { AppError } from '../utils/appError.js';
-// catchAsync utility
-const catchAsync = (fn) => {
-  return (req, res, next) => {
-    fn(req, res, next).catch(next);
-  };
-};
+import catchAsync from '../utils/catchAsync.js';
 export const getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.aggregate([
     { $match: { ratingsAverage: { $gte: 4.5 } } },

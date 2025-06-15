@@ -9,6 +9,12 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 dotenv.config();
 
+process.on('uncaughtException', (err) => {
+  console.log(err.name, err.message);
+  console.log('Shuting down...');
+  process.exit(1);
+});
+
 async function connectDB() {
   await mongoose.connect(process.env.DATABASE_LOCAL);
   console.log('DB connection successful');
@@ -17,10 +23,10 @@ async function connectDB() {
 connectDB();
 
 const app = express();
+const PORT = process.env.PORT;
 
 app.use(express.json());
-// app.use(morgan('dev')); // Logging middleware
-const PORT = process.env.PORT;
+// app.use(morgan('dev')); // Logging
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
@@ -41,6 +47,7 @@ const server = app.listen(PORT, () => {
 
 process.on('unhandledRejection', (err) => {
   server.close(() => {
+    console.log(err.name, err.message);
     console.log('Shuting down...');
     process.exit(1);
   });
