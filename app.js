@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import userRouter from './routes/user.routes.js';
 import tourRouter from './routes/tour.routes.js';
 
-import { AppError } from './utils/appError.js';
+import AppError from './utils/appError.js';
 import { globalErrorHandler } from './controllers/error.controller.js';
 import dotenv from 'dotenv';
 import morgan from 'morgan';

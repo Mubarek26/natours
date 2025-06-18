@@ -1,6 +1,6 @@
 import Tour from '../models/tour.model.js';
 import { ApiFeatures } from '../utils/apiFeatures.js';
-import { AppError } from '../utils/appError.js';
+import AppError from '../utils/appError.js';
 import catchAsync from '../utils/catchAsync.js';
 export const getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.aggregate([
