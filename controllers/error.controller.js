@@ -59,7 +59,7 @@ export const globalErrorHandler = (err, req, res, next) => {
     let error = { ...err };
     error.message = err.message;
 
-    if (error.name === 'CastError') error = handleCastErrorDB(error);
+    if (error.name === 'CastError' || err.kind === 'ObjectId') error = handleCastErrorDB(error);
     if (err.code === 11000) error = handleDuplicateFieldsDB(error);
     if (err.name === 'ValidationError') error = handleValidationErrorDB(error);
 

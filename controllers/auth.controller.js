@@ -77,5 +77,16 @@ export const protect = catchAsync(async (req, res, next) => {
     return next(new AppError('User recently changed password! Please log in again.', 401));
   }
 
+  // Grant access to protected route
+  req.user = currentUser;
   next();
 });
+
+export const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError('You do not have permission to perform this action', 403));
+    }
+    next();
+  };
+};
