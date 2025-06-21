@@ -1,13 +1,14 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import userRouter from './routes/user.routes.js';
-import tourRouter from './routes/tour.routes.js';
-
-import AppError from './utils/appError.js';
-import { globalErrorHandler } from './controllers/error.controller.js';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+
+import userRouter from './routes/user.routes.js';
+import tourRouter from './routes/tour.routes.js';
+import AppError from './utils/appError.js';
+import { globalErrorHandler } from './controllers/error.controller.js';
 dotenv.config();
 
 process.on('uncaughtException', (err) => {
@@ -20,10 +21,12 @@ async function connectDB() {
   await mongoose.connect(process.env.DATABASE_LOCAL);
   console.log('DB connection successful');
 }
-
 connectDB();
-const app = express();
 const PORT = process.env.PORT;
+
+const app = express();
+
+app.use(helmet());
 
 const limiter = rateLimit({
   max: 100,
@@ -32,7 +35,7 @@ const limiter = rateLimit({
 });
 
 app.use('/api', limiter);
-app.use(express.json());
+app.use(express.json({ limit: '2b' }));
 // app.use(morgan('dev')); // Logging
 
 app.use('/api/v1/tours', tourRouter);
