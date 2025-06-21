@@ -7,6 +7,7 @@ import AppError from './utils/appError.js';
 import { globalErrorHandler } from './controllers/error.controller.js';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
 dotenv.config();
 
 process.on('uncaughtException', (err) => {
@@ -21,10 +22,16 @@ async function connectDB() {
 }
 
 connectDB();
-
 const app = express();
 const PORT = process.env.PORT;
 
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many requests from this IP, please try again in an hour!',
+});
+
+app.use('/api', limiter);
 app.use(express.json());
 // app.use(morgan('dev')); // Logging
 
