@@ -39,6 +39,11 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false, // Do not return active status by default
+  },
 });
 
 userSchema.pre('save', async function (next) {
@@ -83,6 +88,13 @@ userSchema.pre('save', function (next) {
   this.passwordChangedAt = Date.now() - 1000; // Ensure the timestamp is before the JWT issued at time
   next();
 });
+
+userSchema.pre(/^find/, function (next) {
+  // this points to the current query
+  this.find({ active: true }); // Exclude inactive users
+  next();
+});
+
 const User = mongoose.model('User', userSchema);
 
 export default User;
