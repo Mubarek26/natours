@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken';
 import AppError from '../utils/appError.js';
 import sendEmail from '../utils/email.js';
 import crypto from 'crypto';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -12,9 +14,17 @@ const signToken = (id) => {
   });
 };
 
+const cookieOptions = {
+  expires: new Date(
+    Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+  ), 
+  secure: process.env.NODE_ENV === 'production', // Set to true in production for HTTPS
+  httpOnly: true,
+};
 const createSendToken = (user, statusCode, res) => {
-  // Generate JWT token
+  user.password = undefined;
   const token = signToken(user._id);
+  res.cookie('jwt', token, cookieOptions);
   res.status(statusCode).json({
     status: 'success',
     token,
