@@ -128,7 +128,6 @@ tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, {
     lower: true,
   });
-
   next();
 });
 
@@ -146,11 +145,12 @@ tourSchema.pre(/^find/, function (next) {
   });
   next();
 });
+
 // AGGREGATIN MIDDLEWARE
 tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
   next();
 });
-const Tour = mongoose.model('Tour', tourSchema);
 
+const Tour = mongoose.model('Tour', tourSchema);
 export default Tour;

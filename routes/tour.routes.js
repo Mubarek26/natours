@@ -2,7 +2,12 @@ import express from 'express';
 import * as tourController from '../controllers/tour.controller.js';
 import * as aliasMiddleware from '../middlewares/alias.middleware.js';
 import * as authController from '../controllers/auth.controller.js';
+import reviewRouter from "../routes/review.routes.js";
+
 const router = express.Router();
+
+router.use("/:tourId/reviews", reviewRouter);
+
 router
   .route('/top-5-tours')
   .get(aliasMiddleware.aliasTopTours, tourController.getAllTours);
