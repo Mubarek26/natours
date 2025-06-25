@@ -112,7 +112,16 @@ const tourSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-});
+}, 
+{ toJSON: { virtuals: true }, toObject: { virtuals: true } } 
+);
+
+// Virtual populate for reviews
+tourSchema.virtual("reviews", {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+})
 
 // DOCUMENT MIDDLEWARE
 tourSchema.pre('save', function (next) {
