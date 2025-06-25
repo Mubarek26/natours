@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
+import hpp from 'hpp';
 
 import userRouter from './routes/user.routes.js';
 import tourRouter from './routes/tour.routes.js';
@@ -43,8 +44,21 @@ app.use(express.json({ limit: '2b' }));
 
 // Data sanitization against noSQL query injection
 app.use(mongoSanitize());
+
 // Data sanitization against XSS 
 app.use(xss());
+
+// Prevent parameter pollution
+app.use(hpp({
+  whitelist: [
+    "duration",
+    "ratingsQuantity",
+    "ratingsAverage",
+    "maxGroupSize",
+    "difficulty",
+    "price"
+  ]
+}));
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);

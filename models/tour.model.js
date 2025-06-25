@@ -6,8 +6,14 @@ const tourSchema = new mongoose.Schema({
     required: [true, 'A tour must have a name'],
     unique: true,
     trim: true,
-    maxLength: [40, 'A tour name must have less than or equal to 40 characters'],
-    minLength: [10, 'A tour name must have more than or equal to 10 characters'],
+    maxLength: [
+      40,
+      'A tour name must have less than or equal to 40 characters',
+    ],
+    minLength: [
+      10,
+      'A tour name must have more than or equal to 10 characters',
+    ],
   },
   slug: String,
   duration: {
@@ -22,9 +28,9 @@ const tourSchema = new mongoose.Schema({
     type: String,
     required: [true, 'A tour must have a difficulty'],
     enum: {
-      values: ["easy", "medium", "difficult"],
-      message: "Difficulty is either: easy, medium or difficult",
-    }
+      values: ['easy', 'medium', 'difficult'],
+      message: 'Difficulty is either: easy, medium or difficult',
+    },
   },
   ratingsAverage: {
     type: Number,
@@ -47,12 +53,11 @@ const tourSchema = new mongoose.Schema({
   discount: {
     type: Number,
     validate: {
-      validator: function(val) {
-      return val < this.price
+      validator: function (val) {
+        return val < this.price;
+      },
+      message: 'Discount price ({VALUE}) should be below the regular price',
     },
-    message: "Discount price ({VALUE}) should be below the regular price"
-
-    }
   },
   summary: {
     type: String,
@@ -74,6 +79,29 @@ const tourSchema = new mongoose.Schema({
     select: false,
   },
   startDates: [Date],
+  startLocation: {
+    type: {
+      type: String,
+      default: 'Point',
+      enum: ['Point'],
+    },
+    coordinates: [Number],
+    address: String,
+    description: String,
+  },
+  locations: [
+    {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+      day: Number,
+    },
+  ],
   secretTour: {
     type: Boolean,
     default: false,
@@ -96,11 +124,11 @@ tourSchema.pre(/^find/, function (next) {
   next();
 });
 
-  // AGGREGATIN MIDDLEWARE
-tourSchema.pre("aggregate", function(next) {
+// AGGREGATIN MIDDLEWARE
+tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
   next();
-})
+});
 const Tour = mongoose.model('Tour', tourSchema);
 
 export default Tour;

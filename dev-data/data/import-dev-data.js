@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const toursData = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'tours-simple.json'), 'utf-8')
+  fs.readFileSync(path.join(__dirname, 'tours.json'), 'utf-8')
 );
 
 mongoose
