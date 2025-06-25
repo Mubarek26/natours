@@ -12,6 +12,7 @@ import userRouter from './routes/user.routes.js';
 import tourRouter from './routes/tour.routes.js';
 import AppError from './utils/appError.js';
 import { globalErrorHandler } from './controllers/error.controller.js';
+import reviewRouter from './routes/review.routes.js';
 dotenv.config();
 
 process.on('uncaughtException', (err) => {
@@ -62,6 +63,7 @@ app.use(hpp({
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can not find ${req.originalUrl} on this server!`, 404));
