@@ -38,7 +38,7 @@ const limiter = rateLimit({
 });
 
 app.use('/api', limiter);
-app.use(express.json({ limit: '2b' }));
+app.use(express.json({ limit: '10kb' }));
 // app.use(morgan('dev')); // Logging
 
 

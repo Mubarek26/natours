@@ -102,6 +102,12 @@ const tourSchema = new mongoose.Schema({
       day: Number,
     },
   ],
+  guides: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+    },
+  ],
   secretTour: {
     type: Boolean,
     default: false,
@@ -124,6 +130,13 @@ tourSchema.pre(/^find/, function (next) {
   next();
 });
 
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
+  next();
+});
 // AGGREGATIN MIDDLEWARE
 tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
