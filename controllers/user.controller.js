@@ -10,6 +10,14 @@ const filterBody = (body, ...allowedFields) => {
   return filteredBody;
 };
 
+export const getMe = (req, res, next) => {
+
+  // 1) Get the user from the collection
+  req.params.id = req.user.id;
+
+  next();
+}
+
 export const updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
