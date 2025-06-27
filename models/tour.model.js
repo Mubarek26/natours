@@ -118,6 +118,9 @@ const tourSchema = new mongoose.Schema(
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
+// Geospatial index for startLocation
+tourSchema.index({ startLocation: '2dsphere' });
+
 // Virtual populate for reviews
 tourSchema.virtual('reviews', {
   ref: 'Review',
@@ -149,9 +152,16 @@ tourSchema.pre(/^find/, function (next) {
 
 // AGGREGATIN MIDDLEWARE
 tourSchema.pre('aggregate', function (next) {
+  // Check if first stage is $geoNear
+  if (this.pipeline()[0]?.$geoNear) {
+    return next(); // do nothing
+  }
+
+  // Otherwise, insert the secretTour filter
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
   next();
 });
+
 
 const Tour = mongoose.model('Tour', tourSchema);
 export default Tour;

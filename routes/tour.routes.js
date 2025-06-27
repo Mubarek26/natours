@@ -11,10 +11,23 @@ router.use('/:tourId/reviews', reviewRouter);
 router
   .route('/top-5-tours')
   .get(aliasMiddleware.aliasTopTours, tourController.getAllTours);
-router.route('/tour-stats').get(tourController.getTourStats);
-router.route('/monthly-plan/:id').get(authController.protect,
-    authController.restrictTo('admin', 'lead-guide', "guide"), tourController.getMonthlyPlan);
 
+router.route('/tour-stats').get(tourController.getTourStats);
+
+router
+  .route('/monthly-plan/:id')
+  .get(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide', 'guide'),
+    tourController.getMonthlyPlan
+  );
+
+router
+  .route('/tours-within/:distance/center/:latlng/unit/:unit')
+  .get(tourController.getToursWithin);
+
+  router.route('/distances/:latlng/unit/:unit')
+  .get(tourController.getDistances);
 router
   .route('/')
   .get(tourController.getAllTours)
