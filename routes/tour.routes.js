@@ -2,27 +2,35 @@ import express from 'express';
 import * as tourController from '../controllers/tour.controller.js';
 import * as aliasMiddleware from '../middlewares/alias.middleware.js';
 import * as authController from '../controllers/auth.controller.js';
-import reviewRouter from "../routes/review.routes.js";
+import reviewRouter from '../routes/review.routes.js';
 
 const router = express.Router();
 
-router.use("/:tourId/reviews", reviewRouter);
+router.use('/:tourId/reviews', reviewRouter);
 
 router
   .route('/top-5-tours')
   .get(aliasMiddleware.aliasTopTours, tourController.getAllTours);
-
 router.route('/tour-stats').get(tourController.getTourStats);
-router.route('/monthly-plan/:id').get(tourController.getMonthlyPlan);
+router.route('/monthly-plan/:id').get(authController.protect,
+    authController.restrictTo('admin', 'lead-guide', "guide"), tourController.getMonthlyPlan);
 
 router
   .route('/')
-  .get(authController.protect, tourController.getAllTours)
-  .post(tourController.createTour);
+  .get(tourController.getAllTours)
+  .post(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.createTour
+  );
 router
   .route('/:id')
   .get(tourController.getTour)
-  .patch(tourController.updateTour)
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.updateTour
+  )
   .delete(
     authController.protect,
     authController.restrictTo('admin', 'lead-guide'),

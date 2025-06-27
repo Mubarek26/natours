@@ -47,9 +47,18 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre('save', async function (next) {
+  // Only run this function if password was actually modified
   if (!this.isModified('password')) return next();
+  // Hash the password with a cost of 12
   this.password = await bcrypt.hash(this.password, 12);
+  // Delete passwordConfirm field
   this.passwordConfirm = undefined;
+  next();
+});
+
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangedAt = Date.now() - 1000; // Ensure the timestamp is before the JWT issued at time
   next();
 });
 
@@ -82,12 +91,6 @@ userSchema.methods.createPasswordResetToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
   return resetToken;
 };
-
-userSchema.pre('save', function (next) {
-  if (!this.isModified('password') || this.isNew) return next();
-  this.passwordChangedAt = Date.now() - 1000; // Ensure the timestamp is before the JWT issued at time
-  next();
-});
 
 userSchema.pre(/^find/, function (next) {
   // this points to the current query

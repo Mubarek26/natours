@@ -11,10 +11,8 @@ const filterBody = (body, ...allowedFields) => {
 };
 
 export const getMe = (req, res, next) => {
-
   // 1) Get the user from the collection
   req.params.id = req.user.id;
-
   next();
 }
 

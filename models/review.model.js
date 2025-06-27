@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import Tour from '../models/tour.model.js';
 const reviewSchema = new mongoose.Schema(
   {
     review: {
@@ -40,6 +41,51 @@ reviewSchema.pre(/^find/, function (next) {
   });
   next();
 });
+
+reviewSchema.statics.calcAverageRatings = async function (tourId) {
+  const stats = await this.aggregate([
+    {
+      $match: { tour: tourId },
+    },
+    {
+      $group: {
+        _id: '$tour',
+        nRating: { $sum: 1 },
+        avgRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRating,
+      ratingsAverage: stats[0].avgRating,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5, // Default value if no reviews
+    });
+  }
+};
+
+reviewSchema.post('save', async function () {
+  await this.constructor.calcAverageRatings(this.tour);
+});
+
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  this.r = await this.clone().findOne();
+  next();
+});
+
+reviewSchema.post(/^findOneAnd/, async function () {
+  if (this.r) {
+    await this.r.constructor.calcAverageRatings(this.r.tour);
+  }
+});
+
+// Prevent duplicate reviews by the same user for the same tour
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
 const Review = mongoose.model('Review', reviewSchema);
 export default Review;
