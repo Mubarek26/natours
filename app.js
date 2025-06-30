@@ -10,6 +10,7 @@ import hpp from 'hpp';
 
 import userRouter from './routes/user.routes.js';
 import tourRouter from './routes/tour.routes.js';
+import viewRouter from './routes/view.routes.js';
 import AppError from './utils/appError.js';
 import { globalErrorHandler } from './controllers/error.controller.js';
 import reviewRouter from './routes/review.routes.js';
@@ -74,15 +75,14 @@ app.use(
   })
 );
 
-app.get('/', (req, res) => {
-  res.status(200).render('base', {
-    title: 'Natours - Home',
-    tour: 'The Park Camper',
-    user: 'Kimo',
-  });
-});
+
+
+
+
+
 
 // Routes
+app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
