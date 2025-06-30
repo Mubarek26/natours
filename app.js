@@ -13,6 +13,14 @@ import tourRouter from './routes/tour.routes.js';
 import AppError from './utils/appError.js';
 import { globalErrorHandler } from './controllers/error.controller.js';
 import reviewRouter from './routes/review.routes.js';
+
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Required when using ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 dotenv.config();
 
 process.on('uncaughtException', (err) => {
@@ -30,6 +38,10 @@ const PORT = process.env.PORT;
 
 const app = express();
 
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(helmet());
 
 const limiter = rateLimit({
@@ -42,25 +54,35 @@ app.use('/api', limiter);
 app.use(express.json({ limit: '10kb' }));
 // app.use(morgan('dev')); // Logging
 
-
 // Data sanitization against noSQL query injection
 app.use(mongoSanitize());
 
-// Data sanitization against XSS 
+// Data sanitization against XSS
 app.use(xss());
 
 // Prevent parameter pollution
-app.use(hpp({
-  whitelist: [
-    "duration",
-    "ratingsQuantity",
-    "ratingsAverage",
-    "maxGroupSize",
-    "difficulty",
-    "price"
-  ]
-}));
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsQuantity',
+      'ratingsAverage',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  })
+);
 
+app.get('/', (req, res) => {
+  res.status(200).render('base', {
+    title: 'Natours - Home',
+    tour: 'The Park Camper',
+    user: 'Kimo',
+  });
+});
+
+// Routes
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
