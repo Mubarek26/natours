@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import hpp from 'hpp';
+import cookieParser from 'cookie-parser';
 
 import userRouter from './routes/user.routes.js';
 import tourRouter from './routes/tour.routes.js';
@@ -53,6 +54,7 @@ const limiter = rateLimit({
 
 app.use('/api', limiter);
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
 // app.use(morgan('dev')); // Logging
 
 // Data sanitization against noSQL query injection
@@ -79,7 +81,10 @@ app.use(
 
 
 
-
+// Test middleware
+// app.use((req, res, next) => {
+//   next();
+// })
 
 // Routes
 app.use('/', viewRouter);
