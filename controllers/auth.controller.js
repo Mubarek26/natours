@@ -106,35 +106,55 @@ export const protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-export const isLoggedIn = catchAsync(async (req, res, next) => {
-  // 1. Get token and check if it's there
 
-  if (req.cookies.jwt) {
-    // 2. Verify token
-    const decoded = await promisify(jwt.verify)(
-      req.cookies.jwt,
-      process.env.JWT_SECRET
-    );
+// Middleware to check if user is logged in
+// This middleware checks if a user is logged in by verifying the JWT token stored in cookies.
+export const isLoggedIn = async (req, res, next) => {
+  try {
+    // 1. Get token and check if it's there
 
-    // 3. Check if user still exists
-    const currentUser = await User.findById(decoded.id);
-    if (!currentUser) {
+    if (req.cookies.jwt) {
+      // 2. Verify token
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      );
+
+      // 3. Check if user still exists
+      const currentUser = await User.findById(decoded.id);
+      if (!currentUser) {
+        return next();
+      }
+
+      // 4. Check if user changed password after the token was issued
+      if (currentUser.changedPasswordAfter(decoded.iat)) {
+        return next();
+      }
+
+      // There is a logged in user
+      res.locals.user = currentUser; // For rendering views
       return next();
     }
-
-    // 4. Check if user changed password after the token was issued
-    if (currentUser.changedPasswordAfter(decoded.iat)) {
-      return next();
-    }
-
-    // There is a logged in user
-    res.locals.user = currentUser; // For rendering views
+  } catch (err) {
     return next();
   }
 
   // No logged in user
   next();
-});
+};
+
+export const logout = (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 1000 * 10),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // Set to true in production for HTTPS
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Logged out successfully',
+  });
+};
 
 export const restrictTo = (...roles) => {
   return (req, res, next) => {
