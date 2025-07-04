@@ -29,29 +29,60 @@ const handlePayloadTooLargeError = () =>
     413
   );
 
-const sendErrorDev = (err, res) => {
-  res.status(err.statusCode).json({
-    status: err.status,
-    error: err,
-    message: err.message,
-    stack: err.stack,
-  });
-};
-
-const sendErrorProd = (err, res) => {
-  // Operational or trusted error
-  if (err.isOperational) {
+const sendErrorDev = (err, req, res) => {
+  // API
+  if (req.originalUrl.startsWith('/api')) {
     res.status(err.statusCode).json({
       status: err.status,
+      error: err,
+      message: err.message,
+      stack: err.stack,
+    });
+  }
+
+  // Rendered website
+  else {
+    res.status(err.statusCode).render('error', {
+      title: 'Something went wrong!',
       message: err.message,
     });
-    // Programming or unknown error
-  } else {
-    console.error('ERROR 💥', err);
-    res.status(500).json({
-      status: 'error',
-      message: 'Something went wrong.',
-    });
+  }
+};
+
+const sendErrorProd = (err, req, res) => {
+  // API
+  if (req.originalUrl.startsWith('/api')) {
+    // Operational or trusted error
+    if (err.isOperational) {
+      res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+      });
+      // Programming or unknown error
+    } else {
+      console.error('ERROR 💥', err);
+      res.status(500).json({
+        status: 'error',
+        message: 'Something went wrong.',
+      });
+    }
+  }
+  // Rendered website
+  else {
+    // Operational or trusted error
+    if (err.isOperational) {
+      res.status(err.statusCode).render('error', {
+        title: 'Something went wrong!',
+        message: err.message,
+      });
+      // Programming or unknown error
+    } else {
+      console.error('ERROR 💥', err);
+      res.status(500).render('error', {
+        title: 'Something went wrong!',
+        message: 'Please try again later.',
+      });
+    }
   }
 };
 
@@ -60,7 +91,7 @@ export const globalErrorHandler = (err, req, res, next) => {
   err.status = err.status || 'error';
 
   if (process.env.NODE_ENV === 'development') {
-    sendErrorDev(err, res);
+    sendErrorDev(err, req, res);
   } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err };
     error.message = err.message;
@@ -73,6 +104,6 @@ export const globalErrorHandler = (err, req, res, next) => {
     if (error.name === 'JsonWebTokenError') error = handleJWTError();
     if (error.name === 'TokenExpiredError') error = handleJWTExpriedError();
     if (error.type === 'entity.too.large') error = handlePayloadTooLargeError();
-    sendErrorProd(error, res);
+    sendErrorProd(error, req, res);
   }
 };
