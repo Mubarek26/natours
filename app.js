@@ -44,7 +44,20 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      connectSrc: [
+        "'self'",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "ws://localhost:*"
+      ],
+    },
+  })
+);
+
 
 const limiter = rateLimit({
   max: 100,
@@ -76,10 +89,6 @@ app.use(
     ],
   })
 );
-
-
-
-
 
 // Test middleware
 // app.use((req, res, next) => {
