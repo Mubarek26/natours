@@ -27,17 +27,22 @@ if (logoutBtn) {
 if (userDataForm) {
   userDataForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
+    const form = new FormData();
 
-    updateSettings({ name, email }, 'data');
+    form.append('name', document.getElementById('name').value);
+    form.append('email', document.getElementById('email').value);
+    form.append('photo', document.getElementById('photo').files[0]);
+    updateSettings(form, 'data');
   });
+}
+else {
+  console.error('User data form not found');  
 }
 
 if (userPasswordForm) {
   userPasswordForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     document.querySelector('.btn--save-password').textContent = 'Updating...';
 
     const currentPassword = document.getElementById('password-current').value;
