@@ -3,7 +3,7 @@ import User from '../models/user.model.js';
 import catchAsync from '../utils/catchAsync.js';
 import jwt from 'jsonwebtoken';
 import AppError from '../utils/appError.js';
-import sendEmail from '../utils/email.js';
+import Email from '../utils/email.js';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -40,6 +40,11 @@ export const signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
   });
+
+  await new Email(
+    newUser,
+    `${req.protocol}://${req.get('host')}/me`
+  ).sendWelcome();
 
   createSendToken(newUser, 201, res);
 });
@@ -106,7 +111,6 @@ export const protect = catchAsync(async (req, res, next) => {
   res.locals.user = currentUser;
   next();
 });
-
 
 // Middleware to check if user is logged in
 // This middleware checks if a user is logged in by verifying the JWT token stored in cookies.
@@ -185,11 +189,11 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
   )}/api/v1/users/resetPassword/${resetToken}`;
   const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}. If you didn't forget your password, please ignore this email!`;
   try {
-    await sendEmail({
-      email: user.email,
-      subject: 'Your password reset token (valid for 10 min)',
-      message,
-    });
+    // await sendEmail({
+    //   email: user.email,
+    //   subject: 'Your password reset token (valid for 10 min)',
+    //   message,
+    // });
 
     res.status(200).json({
       status: 'success',

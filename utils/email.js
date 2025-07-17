@@ -1,10 +1,10 @@
 import nodemailer from 'nodemailer';
 import pug from 'pug';
-import htmlToText from 'html-to-text';
+import {htmlToText}  from 'html-to-text';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-export class Email {
+export default class Email {
   constructor(user, url) {
     this.to = user.email;
     this.firstName = user.name.split(' ')[0];
@@ -47,7 +47,7 @@ export class Email {
       to: this.to,
       subject: subject,
       html,
-      text: htmlToText.fromString(html),
+      text: htmlToText(html),
     };
 
     // 3. Create a transport and send the email
