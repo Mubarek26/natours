@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import pug from 'pug';
-import {htmlToText}  from 'html-to-text';
+import { htmlToText } from 'html-to-text';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -45,7 +45,7 @@ export default class Email {
     const mailOptions = {
       from: this.from,
       to: this.to,
-      subject: subject,
+      subject,
       html,
       text: htmlToText(html),
     };
@@ -55,5 +55,12 @@ export default class Email {
   }
   async sendWelcome() {
     await this.send('welcome', 'Welcome to the Natours Family!');
+  }
+
+  async sendPasswordReset() {
+    await this.send(
+      'passwordReset',
+      'Your password reset token (valid for only 10 minutes)'
+    );
   }
 }
